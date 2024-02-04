@@ -1,50 +1,56 @@
 // UserList.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.css';
+import axios from 'axios';
 
 const AdminPanel = () => {
   // Example user data
-  const initialUsers = [
-    { id: 1, name: 'User 1', status: 'Pending', isAdmin: false },
-    { id: 2, name: 'User 2', status: 'Pending', isAdmin: false },
-    { id: 3, name: 'User 3', status: 'Approved', isAdmin: true },
-    // Add more users as needed
-  ];
+  // const initialUsers = [
+  //   { id: 1, name: 'User 1', status: 'Pending', isadmin: false },
+  //   { id: 2, name: 'User 2', status: 'Pending', isadmin: false },
+  //   { id: 3, name: 'User 3', status: 'Approved', isadmin: true },
+  //   // Add more users as needed
+  // ];
 
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [loadingUserId, setLoadingUserId] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:5000/usersList').then(({ data }) => {
+      console.log('users:', data?.body)
+      setUsers(data?.body)
+    })
+  }, [])
 
   const handleApprove = (userId) => {
     setLoadingUserId(userId);
-
-    // Simulating an asynchronous action (e.g., API call)
-    setTimeout(() => {
-      const updatedUsers = users.map((user) =>
-        user.id === userId
-          ? { ...user, status: 'Approved', isAdmin: false }
-          : user
-      );
-      setUsers(updatedUsers);
-      setLoadingUserId(null);
-    }, 1000);
+    const reqData = {
+      id:userId,
+      status:true
+    }
+    axios.put('http://127.0.0.1:5000/updateUser',reqData).then((data)=>{
+      console.log(data)
+    }).catch((err)=>{
+      console.log(err)
+    })
   };
 
   const handleDecline = (userId) => {
     setLoadingUserId(userId);
-
-    // Simulating an asynchronous action (e.g., API call)
-    setTimeout(() => {
-      const updatedUsers = users.map((user) =>
-        user.id === userId ? { ...user, status: 'Declined' } : user
-      );
-      setUsers(updatedUsers);
-      setLoadingUserId(null);
-    }, 1000);
+    const reqData = {
+      id:userId,
+      status:false
+    }
+    axios.put('http://127.0.0.1:5000/updateUser',reqData).then((data)=>{
+      console.log(data)
+    }).catch((err)=>{
+      console.log(err)
+    })
   };
 
   const handleMakeAdmin = (userId) => {
     const updatedUsers = users.map((user) =>
-      user.id === userId ? { ...user, isAdmin: true } : user
+      user.id === userId ? { ...user, isadmin: true } : user
     );
     setUsers(updatedUsers);
   };
@@ -61,7 +67,10 @@ const AdminPanel = () => {
           <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
             <th>Status</th>
+            <th>Admin</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -70,9 +79,12 @@ const AdminPanel = () => {
             <tr key={user.id}>
               <td>{user.id}</td>
               <td>{user.name}</td>
-              <td>{user.status}</td>
+              <td>{user.email}</td>
+              <td>{user.phone_number}</td>
+              <td>{user.isverified ? "Verified" : "Not Verified"}</td>
+              <td>{user.isadmin ? "Admin" : "User"}</td>
               <td>
-                {user.status === 'Pending' && (
+                {!user.isverified && (
                   <div className="actions-container">
                     <button
                       className="approve-btn"
@@ -96,7 +108,7 @@ const AdminPanel = () => {
                     </button>
                   </div>
                 )}
-                {user.status === 'Approved' && !user.isAdmin && (
+                {user.isverified && !user.isadmin && (
                   <div className="actions-container">
                     <button
                       className="make-admin-btn"

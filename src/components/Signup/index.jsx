@@ -46,6 +46,16 @@ const Signup = () => {
           />
         </label>
         <label>
+          Phone Number:
+          <input
+            type="phNumber"
+            name="phNumber"
+            value={formData.phNumber}
+            onChange={handleChange}
+            required
+          />
+        </label>
+        <label>
           Password:
           <input
             type="password"

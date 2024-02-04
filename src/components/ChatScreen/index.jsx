@@ -2,13 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import './style.css';
+import axios from 'axios';
 
-const ChatScreen = () => {
+const ChatScreen = ({ userEmail }) => {
   const [socket, setSocket] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+
+    axios.get('http://127.0.0.1:5000/getMessages').then(({ data }) => {
+      console.log("daat:", data)
+      setMessages(data?.body)
+    })
+
     // Connect to the WebSocket server
     const newSocket = io('http://127.0.0.1:5000');
     setSocket(newSocket);
@@ -22,26 +29,27 @@ const ChatScreen = () => {
   useEffect(() => {
     // Listen for incoming messages
     if (socket) {
-      socket.on('message', (message) => {
+      socket.on('receive_message', (message) => {
         console.log("message:",message)
         setMessages((prevMessages) => [...prevMessages, message]);
       });
     }
   }, [socket]);
 
-//   const handleInputChange = (e) => {
-//     setNewMessage(e.target.value);
-//   };
+  //   const handleInputChange = (e) => {
+  //     setNewMessage(e.target.value);
+  //   };
 
   const handleSendMessage = () => {
+    console.log("newMessage",newMessage)
     if (socket && newMessage.trim() !== '') {
+      console.log("newMessage",newMessage)
       const newMessageObj = {
-        id: messages.length + 1,
+        sender: userEmail,
         text: newMessage,
-        sender: 'user',
       };
       socket.emit('message', newMessageObj);
-    //   setMessages([...messages, newMessageObj]);
+      //   setMessages([...messages, newMessageObj]);
       setNewMessage('');
     }
   };
@@ -52,7 +60,7 @@ const ChatScreen = () => {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`message ${message.sender === 'user' ? 'user' : 'other'}`}
+            className={`message ${message.sender_email === userEmail ? 'user' : 'other'}`}
           >
             {message.text}
           </div>
