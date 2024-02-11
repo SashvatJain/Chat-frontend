@@ -3,11 +3,18 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import './style.css';
 import axios from 'axios';
+import SideMenu from '../SideMenu';
 
 const ChatScreen = ({ userEmail }) => {
   const [socket, setSocket] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
 
@@ -41,13 +48,15 @@ const ChatScreen = ({ userEmail }) => {
   //   };
 
   const handleSendMessage = () => {
-    console.log("newMessage",newMessage)
     if (socket && newMessage.trim() !== '') {
       console.log("newMessage",newMessage)
       const newMessageObj = {
-        sender: userEmail,
-        text: newMessage,
+        receiver_email:"all",
+        sender_email: userEmail,
+        message_text: newMessage,
       };
+      console.log("newMessage Obj",newMessageObj)
+
       socket.emit('message', newMessageObj);
       //   setMessages([...messages, newMessageObj]);
       setNewMessage('');
@@ -56,13 +65,17 @@ const ChatScreen = ({ userEmail }) => {
 
   return (
     <div className="chat-screen">
+      <SideMenu/>
+      <button className="toggle-button" onClick={toggleMenu}>
+        {isOpen ? 'Close Menu' : 'Open Menu'}
+      </button>
       <div className="message-container">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`message ${message.sender_email === userEmail ? 'user' : 'other'}`}
           >
-            {message.text}
+            {message.message_text}
           </div>
         ))}
       </div>

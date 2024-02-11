@@ -9,22 +9,22 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isloggedIn, setIsloggedIn] = useState(false);
-  const [apiMessage,setApiMessage]  = useState('')
-  const [modalVisibility,setModalVisibility]  = useState(false)
+  const [apiMessage, setApiMessage] = useState('')
+  const [modalVisibility, setModalVisibility] = useState(false)
   // const history = useHistory();
 
   const handleLogin = () => {
-    console.log('email:',email)
-    const reqBody ={
+    console.log('email:', email)
+    const reqBody = {
       email,
       password
     }
-    axios.post('http://127.0.0.1:5000/login',reqBody).then(({data})=>{
-      console.log("data:",data)
+    axios.post('http://127.0.0.1:5000/login', reqBody).then(({ data }) => {
+      console.log("data:", data)
       setApiMessage(data?.message)
-      if(data?.status==='success'){
+      if (data?.status === 'success') {
         setIsloggedIn(true)
-      }else{
+      } else {
         setModalVisibility(true)
 
       }
@@ -36,13 +36,19 @@ const Login = () => {
     // history.push('/dashboard');
   };
 
-  const handleModalClose = ()=>{
+  const handleModalClose = () => {
     setModalVisibility(false)
   }
 
-  if(isloggedIn){
+  const handleEmailChange = (e) => {
+    const { value } = e.target
+    console.log(value)
+    setEmail(value)
+  }
+
+  if (isloggedIn) {
     return (
-      <ChatScreen email={email}/>
+      <ChatScreen userEmail={email} />
     )
   }
 
@@ -50,27 +56,27 @@ const Login = () => {
     <div>
       <h2>Login</h2>
       {/* <form onSubmit={handleLogin}> */}
-        <label>
-          Email:
-          <input
-            type="text"
-            value={email}
-            onChange={(e) => setEmail((e.target.value).toString())}
-          />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        <br />
-        <button type="submit" onClick={handleLogin}>Login</button>
+      <label>
+        Email:
+        <input
+          type="text"
+          value={email}
+          onChange={handleEmailChange}
+        />
+      </label>
+      <br />
+      <label>
+        Password:
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </label>
+      <br />
+      <button type="submit" onClick={handleLogin}>Login</button>
       {/* </form> */}
-      {modalVisibility && <CommonModal message={apiMessage} onClose={handleModalClose}/>}
+      {modalVisibility && <CommonModal message={apiMessage} onClose={handleModalClose} />}
     </div>
   );
 };
